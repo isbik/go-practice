@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	github.com/brianvoe/gofakeit/v6 v6.14.3 // indirect
+	github.com/globalsign/mgo v0.0.0-20181015135952-eeefdecb41b8 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.10.1 // indirect
 	github.com/jackc/pgio v1.0.0 // indirect
