@@ -1,0 +1,44 @@
+[
+ {
+  "_id": {
+   "model": "Redmi",
+   "sex": 0
+  },
+  "count": 3
+ },
+ {
+  "_id": {
+   "model": "Apple",
+   "sex": 0
+  },
+  "count": 5
+ },
+ {
+  "_id": {
+   "model": "Apple",
+   "sex": 1
+  },
+  "count": 1
+ },
+ {
+  "_id": {
+   "model": "Mui",
+   "sex": 1
+  },
+  "count": 5
+ },
+ {
+  "_id": {
+   "model": "Mui",
+   "sex": 0
+  },
+  "count": 13
+ },
+ {
+  "_id": {
+   "model": "Redmi",
+   "sex": 1
+  },
+  "count": 3
+ }
+]
