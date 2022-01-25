@@ -1,38 +1,86 @@
 package main
 
 import (
-	"fmt"
+	"encoding/json"
 	"net/http"
-	"time"
+	"strconv"
 )
 
-type ResponseHandler struct {
-	message string
+type User struct {
+	Name     string
+	Password string
 }
 
-type ResponseTimeoutHandler struct{}
-
-// Send message
-func (ch ResponseHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(rw, ch.message)
+type Wallet struct {
+	Count int
+	Id    int64
+	Owner int
 }
 
-// Timeout 2 seconds
-func (rt ResponseTimeoutHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
-	time.Sleep(2 * time.Second)
+var Admin = User{Name: "admin", Password: "password"}
+
+var Wallets = []Wallet{
+	{
+		Count: 1,
+		Id:    1,
+		Owner: 1,
+	},
+	{
+		Count: 100,
+		Id:    2,
+		Owner: 2,
+	},
+	{
+		Count: -100,
+		Id:    3,
+		Owner: 2,
+	},
 }
 
 func main() {
 
-	http.Handle("/hello", ResponseHandler{message: "hello"})
+	// You need query like this to get json data
+	// curl 'localhost:4000/wallets?ids[]=1' --header 'Authorization: Basic YWRtaW46cGFzc3dvcmQ='
+	http.HandleFunc("/wallets", func(rw http.ResponseWriter, r *http.Request) {
 
-	http.Handle("/source", http.FileServer(http.Dir("../")))
+		name, pass, ok := r.BasicAuth()
 
-	longPill := ResponseTimeoutHandler{}
+		if name != Admin.Name || pass != Admin.Password || !ok {
+			http.Error(rw, "Unauthorized", http.StatusUnauthorized)
+		}
 
-	http.Handle("/longPill", http.TimeoutHandler(longPill, time.Second, "Request timeout"))
+		walletIds, ok := r.URL.Query()["ids[]"]
 
-	http.Handle("/", http.RedirectHandler("https://google.com", http.StatusMovedPermanently))
+		if !ok {
+			http.Error(rw, "invalid json", http.StatusBadRequest)
+		}
+
+		var result []Wallet
+
+		for _, id := range walletIds {
+			qId, err := strconv.ParseInt(id, 10, 12)
+
+			if err != nil {
+				panic(err)
+			}
+
+			for _, wallet := range Wallets {
+				if wallet.Id == qId {
+					result = append(result, wallet)
+				}
+			}
+		}
+
+		jsonData, err := json.Marshal(result)
+
+		if err != nil {
+			http.Error(rw, "invalid json", http.StatusInternalServerError)
+		}
+
+		rw.Header().Set("Content-Type", "application/json")
+		rw.WriteHeader(http.StatusOK)
+		rw.Write(jsonData)
+	})
 
 	http.ListenAndServe(":4000", nil)
 }
