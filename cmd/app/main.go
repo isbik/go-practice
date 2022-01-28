@@ -11,13 +11,15 @@ import (
 )
 
 type User struct {
-	Id    int
-	Name  string
-	Email string
-	Age   int
+	Id       int
+	Name     string
+	Email    string
+	Password string
+	Age      int
 }
 
 var users []User
+var Admin = User{Name: "admin", Password: "password"}
 
 func getUserList(w http.ResponseWriter, r *http.Request) {
 	response, err := json.Marshal(&users)
@@ -107,7 +109,19 @@ func deleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(201)
+}
 
+func AuthMiddleware(h http.Handler) http.Handler {
+	print("tet")
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		name, password, ok := r.BasicAuth()
+
+		if name != Admin.Name || password != Admin.Password || !ok {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		}
+
+		h.ServeHTTP(w, r)
+	})
 }
 
 func main() {
@@ -116,8 +130,11 @@ func main() {
 
 	userRouter := router.PathPrefix("/user").Subrouter()
 
+	userRouter.Use(AuthMiddleware)
+
 	userRouter.HandleFunc("/", getUserList).Methods(http.MethodGet)
 	userRouter.HandleFunc("/{id:[0-9]+}", getUserById).Methods(http.MethodGet)
+
 	userRouter.HandleFunc("/", createUser).Methods(http.MethodPost)
 	userRouter.HandleFunc("/{id:[0-9]+}", deleteUser).Methods(http.MethodDelete)
 
