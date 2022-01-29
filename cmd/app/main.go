@@ -3,26 +3,17 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"math/rand"
 	"net/http"
 	"strconv"
 
 	"github.com/gorilla/mux"
+
+	"main/internal/middleware"
+	"main/internal/mocks"
 )
 
-type User struct {
-	Id       int
-	Name     string
-	Email    string
-	Password string
-	Age      int
-}
-
-var users []User
-var Admin = User{Name: "admin", Password: "password"}
-
 func getUserList(w http.ResponseWriter, r *http.Request) {
-	response, err := json.Marshal(&users)
+	response, err := json.Marshal(&mocks.Users)
 
 	if err != nil {
 		return
@@ -33,7 +24,7 @@ func getUserList(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
-	if len(users) == 0 {
+	if len(mocks.Users) == 0 {
 		w.Write([]byte("[]"))
 	} else {
 		w.Write(response)
@@ -50,7 +41,7 @@ func getUserById(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("i=%d", err)
 	}
 
-	for _, user := range users {
+	for _, user := range mocks.Users {
 		if user.Id == userId {
 			response, err := json.Marshal(&user)
 
@@ -70,7 +61,7 @@ func getUserById(w http.ResponseWriter, r *http.Request) {
 }
 
 func createUser(w http.ResponseWriter, r *http.Request) {
-	var user User
+	var user mocks.User
 
 	err := json.NewDecoder(r.Body).Decode(&user)
 
@@ -78,8 +69,13 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 
-	user.Id = rand.Int()
-	users = append(users, user)
+	if id := r.Context().Value("ID"); id != nil {
+		if value, ok := id.(int); ok {
+			user.Id = value
+		}
+	}
+
+	mocks.Users = append(mocks.Users, user)
 
 	w.WriteHeader(201)
 
@@ -88,7 +84,7 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 func deleteUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	fmt.Println(vars["id"])
-	var filteredUsers []User
+	var filteredUsers []mocks.User
 
 	userId, err := strconv.Atoi(vars["id"])
 
@@ -96,32 +92,19 @@ func deleteUser(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("i=%d", err)
 	}
 
-	for _, user := range users {
+	for _, user := range mocks.Users {
 		if user.Id != userId {
 			filteredUsers = append(filteredUsers, user)
 		}
 	}
 
-	if len(filteredUsers) == len(users) {
+	if len(filteredUsers) == len(mocks.Users) {
 		http.Error(w, err.Error(), http.StatusNotFound)
 	} else {
-		users = filteredUsers
+		mocks.Users = filteredUsers
 	}
 
 	w.WriteHeader(201)
-}
-
-func AuthMiddleware(h http.Handler) http.Handler {
-	print("tet")
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		name, password, ok := r.BasicAuth()
-
-		if name != Admin.Name || password != Admin.Password || !ok {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		}
-
-		h.ServeHTTP(w, r)
-	})
 }
 
 func main() {
@@ -130,7 +113,8 @@ func main() {
 
 	userRouter := router.PathPrefix("/user").Subrouter()
 
-	userRouter.Use(AuthMiddleware)
+	userRouter.Use(middleware.AuthMiddleware)
+	userRouter.Use(middleware.RequestIDMiddleware)
 
 	userRouter.HandleFunc("/", getUserList).Methods(http.MethodGet)
 	userRouter.HandleFunc("/{id:[0-9]+}", getUserById).Methods(http.MethodGet)
