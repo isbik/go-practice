@@ -7,5 +7,6 @@ func main() {
 	// parts.Variables()
 	// parts.SliceAndMap()
 	// parts.Functions()
-	parts.Pointers()
+	// parts.Pointers()
+	parts.Structures()
 }
