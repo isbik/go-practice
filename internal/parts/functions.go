@@ -4,18 +4,21 @@ import "fmt"
 
 func Functions() {
 
-	xs := []int{1, 2, 3, 4}
+	defer func() {
+		str := recover()
+		fmt.Println(str)
 
-	fmt.Println(add(xs...))
+		defer first()
+		second()
+	}()
+
+	panic("Panic")
+
 }
 
-func add(args ...int) int {
-
-	total := 0
-
-	for _, v := range args {
-		total += v
-	}
-
-	return total
+func first() {
+	fmt.Println("first")
+}
+func second() {
+	fmt.Println("second")
 }
