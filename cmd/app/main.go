@@ -4,5 +4,6 @@ import "main/internal/parts"
 
 func main() {
 
-	parts.Variables()
+	// parts.Variables()
+	parts.SliceAndMap()
 }
