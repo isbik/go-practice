@@ -8,5 +8,6 @@ func main() {
 	// parts.SliceAndMap()
 	// parts.Functions()
 	// parts.Pointers()
-	parts.Structures()
+	// parts.Structures()
+	parts.Gorutunes()
 }
