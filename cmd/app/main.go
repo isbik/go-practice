@@ -9,5 +9,6 @@ func main() {
 	// parts.Functions()
 	// parts.Pointers()
 	// parts.Structures()
-	parts.Gorutunes()
+	// parts.Gorutunes()
+	parts.StandardLibrary()
 }
