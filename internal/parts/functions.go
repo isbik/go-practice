@@ -28,6 +28,7 @@ func Functions() {
 	fmt.Println(fib(9))
 	fmt.Println(fib(2))
 	fmt.Println(fib(1))
+
 }
 
 func half(num int) (int, bool) {
