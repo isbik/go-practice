@@ -5,21 +5,35 @@ import (
 	"time"
 )
 
-func f(n *int) {
+func pinger(c chan<- string) {
+	for i := 0; ; i++ {
+		c <- "ping"
+	}
+}
 
-	for i := 0; i < 10; i++ {
-		fmt.Println(*n, ":", i)
+func ponger(c chan string) {
+	for {
+		c <- "pong"
+	}
+}
+
+func printer(c <-chan string) {
+	for {
+		msg := <-c
+		fmt.Println(msg)
 		time.Sleep(time.Second)
 	}
 }
 
 func Gorutunes() {
 
-	input := 0
+	var c chan string = make(chan string)
 
-	go f(&input)
+	go ponger(c)
+	go pinger(c)
+	go printer(c)
 
-	fmt.Scanln(&input)
-
+	var input string
 	fmt.Scanln(&input)
 }
+	
