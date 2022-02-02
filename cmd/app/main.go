@@ -5,10 +5,10 @@ import "main/internal/parts"
 func main() {
 
 	// parts.Variables()
-	// parts.SliceAndMap()
+	parts.SliceAndMap()
 	// parts.Functions()
 	// parts.Pointers()
 	// parts.Structures()
 	// parts.Gorutunes()
-	parts.StandardLibrary()
+	// parts.StandardLibrary()
 }
