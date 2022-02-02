@@ -1,20 +1,21 @@
 package parts
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 func SliceAndMap() {
 
-	var res [][]int
+	var s string = "Test q q q test test word"
 
-	for i := 0; i < 5; i++ {
-		var row []int
+	words := strings.Split(s, " ")
 
-		for j := 0; j < 5; j++ {
-			row = append(row, i*j)
-		}
+	result := make(map[string]int)
 
-		res = append(res, row)
+	for _, word := range words {
+		result[word] += 1
 	}
 
-	fmt.Println(res)
+	fmt.Println(result)
 }
