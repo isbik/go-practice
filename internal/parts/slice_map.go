@@ -2,20 +2,25 @@ package parts
 
 import (
 	"fmt"
-	"strings"
 )
+
+func fibonacci() func() int {
+	n := 0
+	n1 := 1
+
+	return func() int {
+		defer func() {
+			n, n1 = n1, n+n1
+		}()
+
+		return n
+	}
+}
 
 func SliceAndMap() {
 
-	var s string = "Test q q q test test word"
-
-	words := strings.Split(s, " ")
-
-	result := make(map[string]int)
-
-	for _, word := range words {
-		result[word] += 1
+	f := fibonacci()
+	for i := 0; i < 10; i++ {
+		fmt.Println(f())
 	}
-
-	fmt.Println(result)
 }
