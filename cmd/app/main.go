@@ -2,28 +2,20 @@ package main
 
 import (
 	"fmt"
-	"math"
 )
 
-type Vertex struct {
-	X, Y float64
-}
+type IPAddr [4]byte
 
-func (v *Vertex) Abs() float64 {
-	return math.Sqrt(v.X*v.X + v.Y*v.Y)
-}
-
-func Scale(v *Vertex, f float64) {
-	v.X = v.X * f
-	v.Y = v.Y * f
+func (ip IPAddr) String() string {
+	return fmt.Sprintf("%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3])
 }
 
 func main() {
-
-	v := Vertex{5, 5}
-
-	Scale(&v, 5)
-
-	fmt.Println(v.Abs())
-
+	hosts := map[string]IPAddr{
+		"loopback":  {127, 0, 0, 1},
+		"googleDNS": {8, 8, 8, 8},
+	}
+	for name, ip := range hosts {
+		fmt.Printf("%v: %v\n", name, ip)
+	}
 }
